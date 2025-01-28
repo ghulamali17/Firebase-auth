@@ -1,3 +1,10 @@
+import { app } from "./FirebaseConfig.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+} from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+
+const auth = getAuth(app); 
 document.querySelector("#signUpButton").addEventListener("click", async() => {
     const email = document.querySelector("#email").value; 
     const password = document.querySelector("#password").value; 
