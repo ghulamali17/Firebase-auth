@@ -63,6 +63,6 @@ document.querySelector("#searchButton").addEventListener("click", async () => {
     }
   } catch (error) {
     console.error("Error searching user:", error);
-    userDetailsDiv.innerHTML = `<p class="text-danger">Error fetching user data. Try again later.</p>`;
+    userDetailsDiv.innerHTML = `<p class="text-danger">Error... Try again later.</p>`;
   }
 });
