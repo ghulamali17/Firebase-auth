@@ -8,7 +8,7 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 
 const auth = getAuth(app);
@@ -16,37 +16,41 @@ const db = getFirestore(app);
 
 // Get current user from local storage
 const userData = JSON.parse(localStorage.getItem("userData"));
-if (userData) {
+if (userData && userData.email) {
   document.querySelector("#userEmail").textContent = userData.email;
 } else {
   window.location.replace("./index.html");
 }
 
-// Logout 
+// Logout
 document.querySelector("#logoutButton").addEventListener("click", async () => {
-  await signOut(auth);
-  localStorage.removeItem("userData");
-  window.location.replace("./index.html");
+  try {
+    await signOut(auth);
+    localStorage.removeItem("userData");
+    window.location.replace("./index.html");
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
 });
 
-// Search 
+// Search user in Firestore
 document.querySelector("#searchButton").addEventListener("click", async () => {
-  const searchEmail = document.querySelector("#searchInput").value.trim();
+  const searchEmail = document.querySelector("#searchInput").value.trim().toLowerCase();
   const userDetailsDiv = document.querySelector("#userDetails");
 
   if (!searchEmail) {
-    alert("Please enter an email to search.");
+    userDetailsDiv.innerHTML = `<p class="text-danger">Please enter an email to search.</p>`;
     return;
   }
 
-  // Firestore query 
-  const usersRef = collection(db, "users");
-  const q = query(usersRef, where("email", "==", searchEmail));
-
   try {
+    // Firestore query to search user by email
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", searchEmail));
     const querySnapshot = await getDocs(q);
+
     if (querySnapshot.empty) {
-      userDetailsDiv.innerHTML = `<p class="text-danger">No user found.</p>`;
+      userDetailsDiv.innerHTML = `<p class="text-danger">No user found with this email.</p>`;
     } else {
       querySnapshot.forEach((doc) => {
         const userData = doc.data();
@@ -59,6 +63,6 @@ document.querySelector("#searchButton").addEventListener("click", async () => {
     }
   } catch (error) {
     console.error("Error searching user:", error);
-    userDetailsDiv.innerHTML = `<p class="text-danger">Error fetching user data.</p>`;
+    userDetailsDiv.innerHTML = `<p class="text-danger">Error fetching user data. Try again later.</p>`;
   }
 });
